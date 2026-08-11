@@ -1,50 +1,37 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 
 function WarehouseManage() {
-  return (
+    const [warehouse, setWarehouse] = useState([]);
+    const token = sessionStorage.getItem('token');
+
+    const fetchWarehouse = async() => {
+        try {
+            const response = await axios.get(
+                'http://localhost:5050/api/warehouse/viewWarehouse',
+                {
+                    headers : {
+                        "Content-Type" : "application/json",
+                        "Authorization" : `Bearer ${token}`
+                    }
+                }
+            );
+
+            setWarehouse(response.data.data);
+
+        } catch (error) {
+
+        }
+    };
+
+    useEffect(() => {
+        fetchWarehouse();
+    }, []);
+    return (
     <>
             <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
                 <div>
                     <div className="page-title">Warehouse Directory</div>
-                </div>
-            </div>
-
-            <div className="row g-3 mb-3">
-                <div className="col-6 col-lg-3">
-                    <div className="stat-card" style={{ backgroundImage: "linear-gradient(to right, #457b9d, #5993ad, #70abbd, #8bc2cc, #a8dadc)" }}>
-                        <div className="d-flex mb-3">
-                            <i className="bi bi-people text-white fs-4"></i>
-                            <span className="stat-label text-white ms-2 mt-1">Total Employee</span>
-                        </div>
-                        <div className="stat-value text-white">$84,210</div>
-                        </div>
-                </div>
-                <div className="col-6 col-lg-3">
-                    <div className="stat-card" style={{ backgroundImage: "linear-gradient(to right, #d4a373, #ddba8b, #e6d0a6, #f1e5c2, #faedcd)" }}>
-                        <div className="d-flex mb-3">
-                            <i className="bi bi-activity text-dark fs-4"></i>
-                            <span className="stat-label text-dark ms-2 mt-1">Active Employee</span>
-                        </div>
-                        <div className="stat-value text-dark">6,342</div>
-                    </div>
-                </div>
-                <div className="col-6 col-lg-3">
-                    <div className="stat-card" style={{ backgroundImage: "linear-gradient(to right, #c9ada7, #d3bcb5, #ddcbc4, #e7dad4, #f2e9e4)" }}>
-                        <div className="d-flex mb-3">
-                            <i className="bi bi-briefcase text-dark fs-4"></i>
-                            <span className="stat-label text-dark ms-2 mt-1">On Leave / Remote</span>
-                        </div>
-                        <div className="stat-value text-dark">1,208</div>
-                    </div>
-                </div>  
-                <div className="col-6 col-lg-3">
-                    <div className="stat-card" style={{ backgroundImage: "linear-gradient(to right, #84a98c, #97b399, #a9bda6, #bac7b5, #cad2c5)" }}>
-                        <div className="d-flex mb-3">
-                            <i className="bi bi-layout-wtf text-white fs-4"></i>
-                            <span className="stat-label text-white ms-2 mt-1">Departments</span>
-                        </div>
-                        <div className="stat-value text-white">2.3%</div>
-                    </div>
                 </div>
             </div>
 
@@ -59,17 +46,33 @@ function WarehouseManage() {
                     <table className="table mb-0 align-middle">
                         <thead>
                             <tr>
-                                <th>Employee Code</th>
-                                <th>Employee Name</th>
-                                <th>Department</th>
-                                <th>Designation</th>
-                                <th>Basic Pay</th>
+                                <th>Warehouse Code</th>
+                                <th>Warehouse Name</th>
+                                <th>Warehouse Type</th>
+                                <th>Manager</th>
+                                <th>Capacity</th>
                                 <th>Status</th>
-                                <th>Employement Type</th>
+                                <th>capacityUnit</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {warehouse.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item.warehouseCode}</td>
+                                    <td>{item.warehouseName}</td>
+                                    <td>{item.warehouseType}</td>
+                                    <td>{item.manager.firstName} {item.manager.lastName}</td>
+                                    <td>{item.capacity}</td>
+                                    <td><span className="badge-status success">{item.status}</span></td>
+                                    <td>{item.capacityUnit.unitName}</td>
+                                    <td className='px-1'>
+                                        <a href="#" className='text-danger'><i className='bi bi-trash fs-6'></i></a>
+                                        <a href="#" className='ms-2 text-warning'><i className='bi bi-arrow-repeat fs-6'></i></a>
+                                        <a href="#" className='ms-2 text-success'><i className='bi bi-person-lines-fill fs-6'></i></a>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

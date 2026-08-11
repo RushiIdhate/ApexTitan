@@ -1,7 +1,100 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 
 function RegisterInventory() {
-  const successStatus = false;
+    const [formData, setFormData] = useState({
+        product: "",
+        warehouse: "",
+        quantityOnHand: "",
+        reservedQuantity: "",
+        damagedQuantity: "",
+        reorderLevel: "",
+        reorderQuantity: "",
+        lastStockMovement: "",
+        status: ""
+    });
+
+    const [product, setProduct] = useState([]);
+    const [warehouse, setWarehouse] = useState([]);
+    const [successStatus, setSuccessStatus] = useState(false);
+    const [failStatus, setFailStatus] = useState(false);
+
+    const token = sessionStorage.getItem("token");
+
+    const handleChange = (e) =>{
+        const {name, value} = e.target;
+
+        setFormData({
+            ...formData,
+            [name] : value
+        })
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch(
+                "http://localhost:5050/api/inventory/registerInventory",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                }
+            );
+
+            if (response.status === 200) {
+                setSuccessStatus(true);
+            } else {
+                setFailStatus(true);
+            }
+        } catch (error) {
+            setFailStatus(true);
+        }
+    };
+
+    const fetchProduct = async() => {
+        try {
+            const response = await axios.get('http://localhost:5050/api/product/viewProduct',
+                {
+                    headers : {
+                        "Content-Type" : "application/json",
+                        "Authorization" : `Bearer ${token}`
+                    }
+                }
+            );
+
+            setProduct(response.data.data);
+        } catch (error) {
+            
+        }
+    };
+
+    const fetchWarehouse = async() => {
+        try {
+            const response = await axios.get('http://localhost:5050/api/warehouse/viewWarehouse',
+                {
+                    headers : {
+                        "Content-Type" : "application/json",
+                        "Authorization" : `Bearer ${token}`
+                    }
+                }
+            );
+
+            setWarehouse(response.data.data);
+        } catch (error) {
+            
+        }
+    };
+
+    useEffect(() => {
+        fetchProduct();
+        fetchWarehouse();
+    },[])
+
     return (
         <>
 
@@ -18,10 +111,37 @@ function RegisterInventory() {
                                     <h5 className="modal-title">
                                         Registration Successful
                                     </h5>
+                                    <button type="button" className="btn-close" onClick={() => {setSuccessStatus(false)}}></button>
                                 </div>
 
                                 <div className="modal-body">
                                     <p>Inventory Registration is successfull.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal-backdrop fade show"></div>
+                </>
+            )}
+
+            {failStatus && (
+                <>
+                    <div
+                        className="modal fade show"
+                        style={{ display: "block" }}
+                    >
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content">
+
+                                <div className="modal-header">
+                                    <h5 className="modal-title">
+                                        Registration Failed
+                                    </h5>
+                                    <button type="button" className="btn-close" onClick={() => {setFailStatus(false)}}></button>
+                                </div>
+
+                                <div className="modal-body">
+                                    <p>Inventory Registration is Failed.</p>
                                 </div>
                             </div>
                         </div>
@@ -36,7 +156,7 @@ function RegisterInventory() {
                 </div>
             </div>
             
-            <form>
+            <form onSubmit={handleSubmit}>
                 <p className='text-muted fs-6 fw-medium'>Inventory Information</p>
                 <hr />
 
@@ -46,10 +166,14 @@ function RegisterInventory() {
                             <select
                                 className="form-select"
                                 id="product"
+                                name='product'
+                                onChange={handleChange}
                                 required
                             >
                                 <option value="">--- Select Product ---</option>
-                                {/* Product options will come from backend */}
+                                {product.map((item, index) => (
+                                    <option value={`${item._id}`}>{item.productName}</option>
+                                ))}
                             </select>
 
                             <label htmlFor="product">
@@ -64,10 +188,14 @@ function RegisterInventory() {
                             <select
                                 className="form-select"
                                 id="warehouse"
+                                name='warehouse'
+                                onChange={handleChange}
                                 required
                             >
                                 <option value="">--- Select Warehouse ---</option>
-                                {/* Warehouse options will come from backend */}
+                                {warehouse.map((item, index) => (
+                                    <option value={`${item._id}`}>{item.warehouseName}</option>
+                                ))}
                             </select>
 
                             <label htmlFor="warehouse">
@@ -90,7 +218,8 @@ function RegisterInventory() {
                                 className="form-control py-1"
                                 id="quantityOnHand"
                                 placeholder="Quantity On Hand"
-                                min="0"
+                                name='quantityOnHand'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="quantityOnHand">
@@ -107,7 +236,8 @@ function RegisterInventory() {
                                 className="form-control py-1"
                                 id="reservedQuantity"
                                 placeholder="Reserved Quantity"
-                                min="0"
+                                name='reservedQuantity'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="reservedQuantity">
@@ -125,6 +255,8 @@ function RegisterInventory() {
                                 id="damagedQuantity"
                                 placeholder="Damaged Quantity"
                                 min="0"
+                                name='damagedQuantity'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="damagedQuantity">
@@ -148,6 +280,8 @@ function RegisterInventory() {
                                 id="reorderLevel"
                                 placeholder="Reorder Level"
                                 min="0"
+                                name='reorderLevel'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="reorderLevel">
@@ -165,6 +299,8 @@ function RegisterInventory() {
                                 id="reorderQuantity"
                                 placeholder="Reorder Quantity"
                                 min="0"
+                                name='reorderQuantity'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="reorderQuantity">
@@ -186,6 +322,8 @@ function RegisterInventory() {
                                 type="date"
                                 className="form-control py-1"
                                 id="lastStockMovement"
+                                name='lastStockMovement'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="lastStockMovement">
@@ -200,7 +338,10 @@ function RegisterInventory() {
                             <select
                                 className="form-select"
                                 id="status"
+                                name='status'
+                                onChange={handleChange}
                             >
+                                <option value="">--- Select Status ---</option>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                             </select>

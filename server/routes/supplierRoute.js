@@ -2,7 +2,7 @@ const express = require('express');
 
 const {
     registerSupplier,
-    viewSupplier
+    viewSupplier, deleteSupplier
 } = require('../controller/supplierController.js');
 
 const verifyToken = require('../middlewares/verifyToken.js');
@@ -19,6 +19,12 @@ router.get(
     '/viewSupplier',
     verifyToken,
     viewSupplier
+);
+
+router.delete(
+    '/deleteSupplier/:id',
+    verifyToken,
+    deleteSupplier
 );
 
 module.exports = router;

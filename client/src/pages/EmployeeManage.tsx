@@ -27,6 +27,22 @@ function EmployeeManage() {
         }
     }
 
+    const handleDelete = async(_id) => {
+        try {
+            const response = await axios.delete(`http://localhost:5050/api/employee/deleteEmployee/${_id}`, {   
+                headers : {
+                    Authorization : `Bearer ${token}`
+                }
+            });
+
+            if(response.data.status === 'Success'){
+                fetchEmployee();
+            }
+        } catch (error) {
+            console.error(error.response?.data || error.message);
+        }
+    };
+
     useEffect(() => {
         fetchEmployee();
     },[]);
@@ -110,9 +126,9 @@ function EmployeeManage() {
                                     <td><span className="badge-status success">{item.employeeStatus}</span></td>
                                     <td>{item.employeeType}</td>
                                     <td className='px-1'>
-                                        <a href="#" className='text-danger'><i className='bi bi-trash fs-6'></i></a>
-                                        <a href="#" className='ms-2 text-warning'><i className='bi bi-arrow-repeat fs-6'></i></a>
-                                        <a href="#" className='ms-2 text-success'><i className='bi bi-person-lines-fill fs-6'></i></a>
+                                        <button className='text-danger border-0 bg-transparent px-1' onClick={() => handleDelete(item._id)}><i className='bi bi-trash fs-6'></i></button>
+                                        <button className='text-warning border-0 bg-transparent px-1' onClick={handleUpdate}><i className='bi bi-arrow-repeat fs-6'></i></button>
+                                        <button className='text-success border-0 bg-transparent px-1' onClick={viewMoreDetails}><i className='bi bi-person-lines-fill fs-6'></i></button>
                                     </td>
                                 </tr>
                             ))}

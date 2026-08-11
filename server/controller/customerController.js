@@ -88,4 +88,29 @@ const viewCustomer = async(req, res) => {
     }
 };
 
-module.exports = { registerCustomer, viewCustomer }
+const deleteCustomer = async(req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await Customer.findByIdAndDelete(id);
+
+        if(!response){
+            return res.status(400).json({
+                status : "Fail",
+                message : "Customer deletion fail"
+            });
+        }
+
+        return res.status(200).json({
+            status : "Success",
+            message : "Customer deleted successfully"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status : "Error",
+            message : "Error while deleting Customer",
+            error : error.message
+        });
+    }
+};
+
+module.exports = { registerCustomer, viewCustomer, deleteCustomer }

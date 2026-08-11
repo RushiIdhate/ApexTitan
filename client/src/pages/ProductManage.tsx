@@ -68,17 +68,35 @@ function ProductManage() {
                     <table className="table mb-0 align-middle">
                         <thead>
                             <tr>
-                                <th>Employee Code</th>
-                                <th>Employee Name</th>
-                                <th>Department</th>
-                                <th>Designation</th>
-                                <th>Basic Pay</th>
+                                <th>Product Code</th>
+                                <th>Product Name</th>
+                                <th>Product Type</th>
+                                <th>Category</th>
+                                <th>Unit</th>
+                                <th>Brand</th>
+                                <th>GST</th>
                                 <th>Status</th>
-                                <th>Employement Type</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {product.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item.productCode}</td>
+                                    <td>{item.productName}</td>
+                                    <td>{item.productType}</td>
+                                    <td>{item.category.categoryName}</td>
+                                    <td>{item.unit.unitName}</td>
+                                    <td>{item.brand}</td>
+                                    <td>{item.gstRate}</td>
+                                    <td><span className="badge-status success">{item.status}</span></td>
+                                    <td className='px-1'>
+                                        <a href="#" className='text-danger'><i className='bi bi-trash fs-6'></i></a>
+                                        <a href="#" className='ms-2 text-warning'><i className='bi bi-arrow-repeat fs-6'></i></a>
+                                        <a href="#" className='ms-2 text-success'><i className='bi bi-person-lines-fill fs-6'></i></a>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

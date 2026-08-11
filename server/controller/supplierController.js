@@ -151,8 +151,34 @@ const viewSupplier = async (req, res) => {
     }
 };
 
+const deleteSupplier = async(req, res) => {
+    try {
+        const {id} = req.params;
+
+        const response = await Supplier.findByIdAndDelete(id);
+
+        if(!response){
+            return res.status(401).json({
+                status: 'Fail',
+                message: 'Error in Deleting Supplier Data'
+            });
+        }
+
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Supplier data not get deleted'
+        });
+    } catch (error) {
+        return res.status(401).json({
+            status: 'Fail',
+            message: 'Error in Deleting Supplier Data',
+            error: error.message
+        });
+    }
+};
+
 
 module.exports = {
     registerSupplier,
-    viewSupplier
+    viewSupplier, deleteSupplier
 };

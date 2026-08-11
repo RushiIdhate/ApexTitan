@@ -1,7 +1,116 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 
 function RegisterWarehouse() {
-  const successStatus = false;
+    const [formData, setFormData] = useState({
+        warehouseName : "",
+        warehouseType : "",
+        manager : "",
+        address : {
+            addressLine1 : "",
+            addressLine2 : "",
+            city : "",
+            state : "",
+            country : "",
+            pinCode : ""
+        },
+        contactNumber : "",
+        email : "",
+        capacity : "",
+        capacityUnit : "",
+        status : "",
+        description : ""
+    });
+
+    const [employee, setEmployee] = useState([""]);
+    const [unit, setUnit] = useState([""]);
+    const [successStatus, setSuccessStatus] = useState(false);
+    const [failStatus, setFailStatus] = useState(false);
+
+    const token = sessionStorage.getItem('token');
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData({
+            ...formData,
+            [name] : value
+        });
+    };
+
+    const handleAddressChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData({
+            ...formData,
+            address : {
+                ...formData.address,
+                [name] : value
+            }
+        });
+    };
+
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch(
+                'http://localhost:5050/api/warehouse/registerWarehouse',
+                {
+                    method : "POST",
+                    headers : {
+                        "Content-Type" : "application/json",
+                        "Authorization" : `Bearer ${token}`
+                    },
+                    body : JSON.stringify(formData)
+                }
+            );
+
+            if(response.status === 200){
+                setSuccessStatus(true);
+            } else {
+                setFailStatus(true);
+            }
+
+        } catch (error) {
+            setFailStatus(true);
+        }
+    };
+
+    const fetchEmployee = async() => {
+        try {
+            const response = await axios.get('http://localhost:5050/api/employee/viewEmployee', {
+                headers : {
+                    "Content-Type" : "application/json",
+                    "Authorization" : `Bearer ${token}`
+                }
+            });
+
+            setEmployee(response.data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const fetchUnit = async() => {
+        try {
+            const response = await axios.get('http://localhost:5050/api/unit/viewUnit', {
+                headers : {
+                    "Content-Type" : "application/json",
+                    "Authorization" : `Bearer ${token}`
+                }
+            });
+
+            setUnit(response.data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchEmployee();
+        fetchUnit();
+    },[])
     return (
         <>
 
@@ -18,10 +127,37 @@ function RegisterWarehouse() {
                                     <h5 className="modal-title">
                                         Registration Successful
                                     </h5>
+                                    <button type="button" className="btn-close" onClick={() => {setSuccessStatus(false)}}></button>
                                 </div>
 
                                 <div className="modal-body">
                                     <p>Warehouse Registration is successfull.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal-backdrop fade show"></div>
+                </>
+            )}
+
+            {failStatus && (
+                <>
+                    <div
+                        className="modal fade show"
+                        style={{ display: "block" }}
+                    >
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content">
+
+                                <div className="modal-header">
+                                    <h5 className="modal-title">
+                                        Registration Failed
+                                    </h5>
+                                    <button type="button" className="btn-close" onClick={() => {setFailStatus(false)}}></button>
+                                </div>
+
+                                <div className="modal-body">
+                                    <p>Warehouse Registration is Failed.</p>
                                 </div>
                             </div>
                         </div>
@@ -36,8 +172,8 @@ function RegisterWarehouse() {
                 </div>
             </div>
             
-            <form>
-                <p className='text-muted fs-6 fw-medium'>Warehouse Information</p>
+            <form onSubmit={handleSubmit}>
+                <p className='fs-6 fw-medium'>Warehouse Information</p>
                 <hr />
 
                 <div className="row mb-3">
@@ -48,6 +184,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="warehouseName"
                                 placeholder="Warehouse Name"
+                                name='warehouseName'
+                                onChange={handleChange}
                                 required
                             />
 
@@ -63,6 +201,8 @@ function RegisterWarehouse() {
                             <select
                                 className="form-select"
                                 id="warehouseType"
+                                name='warehouseType'
+                                onChange={handleChange}
                                 required
                             >
                                 <option value="">--- Select Warehouse Type ---</option>
@@ -86,10 +226,16 @@ function RegisterWarehouse() {
                         <div className="form-floating">
                             <select
                                 className="form-select"
+                                name='manager'
+                                onChange={handleChange}
                                 id="manager"
                             >
                                 <option value="">--- Select Manager ---</option>
-                                {/* Employee options will come from backend */}
+                                {employee.map((item) => (
+                                    <option value={`${item._id}`}>
+                                        {item.firstName} {item.lastName}
+                                    </option>
+                                ))}
                             </select>
 
                             <label htmlFor="manager">
@@ -104,7 +250,10 @@ function RegisterWarehouse() {
                             <select
                                 className="form-select"
                                 id="status"
+                                name='status'
+                                onChange={handleChange}
                             >
+                                <option value="">--- Select Status ---</option>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                             </select>
@@ -129,6 +278,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="addressLine1"
                                 placeholder="Address Line 1"
+                                name='addressLine1'
+                                onChange={handleAddressChange}
                                 required
                             />
 
@@ -146,6 +297,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="addressLine2"
                                 placeholder="Address Line 2"
+                                name='addressLine2'
+                                onChange={handleAddressChange}
                             />
 
                             <label htmlFor="addressLine2">
@@ -164,6 +317,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="city"
                                 placeholder="City"
+                                name='city'
+                                onChange={handleAddressChange}
                                 required
                             />
 
@@ -181,6 +336,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="state"
                                 placeholder="State"
+                                name='state'
+                                onChange={handleAddressChange}
                                 required
                             />
 
@@ -199,6 +356,8 @@ function RegisterWarehouse() {
                                 type="text"
                                 className="form-control py-1"
                                 id="country"
+                                name='country'
+                                onChange={handleAddressChange}
                                 placeholder="Country"
                                 defaultValue="India"
                             />
@@ -217,6 +376,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="pinCode"
                                 placeholder="PIN Code"
+                                name='pinCode'
+                                onChange={handleAddressChange}
                                 required
                             />
 
@@ -240,6 +401,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="contactNumber"
                                 placeholder="Contact Number"
+                                name='contactNumber'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="contactNumber">
@@ -256,6 +419,8 @@ function RegisterWarehouse() {
                                 className="form-control py-1"
                                 id="email"
                                 placeholder="Email"
+                                name='email'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="email">
@@ -275,6 +440,8 @@ function RegisterWarehouse() {
                                 id="capacity"
                                 placeholder="Capacity"
                                 min="0"
+                                name='capacity'
+                                onChange={handleChange}
                             />
 
                             <label htmlFor="capacity">
@@ -289,9 +456,13 @@ function RegisterWarehouse() {
                             <select
                                 className="form-select"
                                 id="capacityUnit"
+                                name='capacityUnit'
+                                onChange={handleChange}
                             >
                                 <option value="">--- Select Capacity Unit ---</option>
-                                {/* Unit options will come from backend */}
+                                {unit.map((item, index) => (
+                                    <option value={`${item._id}`}>{item.unitName}</option>
+                                ))}
                             </select>
 
                             <label htmlFor="capacityUnit">
@@ -314,6 +485,8 @@ function RegisterWarehouse() {
                                 id="description"
                                 placeholder="Description"
                                 style={{ height: "120px" }}
+                                name='description'
+                                onChange={handleChange}
                             ></textarea>
 
                             <label htmlFor="description">

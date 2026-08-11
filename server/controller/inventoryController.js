@@ -66,11 +66,14 @@ const registerInventory = async (req, res) => {
             });
         }
 
+        const reservedQty = Number(reservedQuantity);
+        const onHandQty = Number(quantityOnHand);
+
         // Validate Reserved Quantity
         if (
-            reservedQuantity !== undefined &&
-            quantityOnHand !== undefined &&
-            reservedQuantity > quantityOnHand
+            reservedQty !== undefined &&
+            onHandQty !== undefined &&
+            reservedQty > onHandQty
         ) {
             return res.status(400).json({
                 status: 'Fail',
@@ -81,8 +84,8 @@ const registerInventory = async (req, res) => {
         // Validate Damaged Quantity
         if (
             damagedQuantity !== undefined &&
-            quantityOnHand !== undefined &&
-            damagedQuantity > quantityOnHand
+            onHandQty !== undefined &&
+            damagedQuantity > onHandQty
         ) {
             return res.status(400).json({
                 status: 'Fail',
@@ -95,8 +98,8 @@ const registerInventory = async (req, res) => {
             adminID,
             product,
             warehouse,
-            quantityOnHand,
-            reservedQuantity,
+            onHandQty,
+            reservedQty,
             damagedQuantity,
             reorderLevel,
             reorderQuantity,

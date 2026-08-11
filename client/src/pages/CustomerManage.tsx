@@ -26,6 +26,24 @@ function CustomerManage() {
         fetchCustomer();
     }, [])
 
+    const handleDelete = async(_id) => {
+        try {
+            const response = await axios.delete(`http://localhost:5050/api/customer/deleteCustomer/${_id}`,
+                {
+                    headers : {
+                        "Authorization" : `Bearer ${token}`
+                    }
+                }
+            );
+
+            if(response.data.status === "Success"){
+                fetchCustomer();
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     return (
         <>
             <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
@@ -87,9 +105,9 @@ function CustomerManage() {
                                     <td><span className="badge-status success">{item.status}</span></td>
                                     <td>{item.gstNumber}</td>
                                     <td className='px-1'>
-                                        <a href="#" className='text-danger'><i className='bi bi-trash fs-6'></i></a>
-                                        <a href="#" className='ms-2 text-warning'><i className='bi bi-arrow-repeat fs-6'></i></a>
-                                        <a href="#" className='ms-2 text-success'><i className='bi bi-person-lines-fill fs-6'></i></a>
+                                        <button className='border-0 bg-transparent px-0 text-danger' onClick={() => handleDelete(`${item._id}`)}><i className='bi bi-trash fs-6'></i></button>
+                                        <button className='border-0 bg-transparent px-0 ms-2 text-warning' onClick={() => handleUpdate()}><i className='bi bi-arrow-repeat fs-6'></i></button>
+                                        <button className='border-0 bg-transparent px-0 ms-2 text-success' onClick={() => handleViewDetail()}><i className='bi bi-person-lines-fill fs-6'></i></button>
                                     </td>
                                 </tr>
                             ))}
